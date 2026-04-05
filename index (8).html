@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palm-Ware</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        // Initialize icons immediately for static HTML
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        });
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        @import "tailwindcss";
+
+        @theme {
+            --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+        }
+
+        :root {
+            --primary-bg: #121212;
+            --secondary-bg: #1e1e1e;
+            --accent-bg: #27272a;
+            --text-main: #f4f4f5;
+            --text-secondary: #a1a1aa;
+        }
+
+        body { 
+            font-family: var(--font-sans); 
+            background-color: var(--primary-bg); 
+            color: var(--text-main); 
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .bg-primary { background-color: var(--primary-bg); }
+        .bg-secondary { background-color: var(--secondary-bg); }
+        .bg-accent { background-color: var(--accent-bg); }
+        .bg-main { background-color: var(--text-main); }
+        .text-main { color: var(--text-main); }
+        .text-secondary { color: var(--text-secondary); }
+        .text-primary { color: var(--primary-bg); }
+        .border-accent { border-color: var(--accent-bg); }
+        .border-main { border-color: var(--text-main); }
+
+        .selection-bg::selection { background-color: var(--accent-bg); }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--primary-bg); }
+        ::-webkit-scrollbar-thumb { background: var(--accent-bg); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+
+        .view {
+            display: none;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        .view.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes roll {
+            0% { transform: translateY(300px); }
+            100% { transform: translateY(-600px); }
+        }
+        .credits-roll {
+            animation: roll 20s linear infinite;
+        }
+
+        /* Fullscreen iframe container */
+        .player-container {
+            flex: 1;
+            background: black;
+            position: relative;
+        }
+    </style>
+</head>
+<body class="selection-bg">
+
+    <!-- Topbar (Shared across some views, hidden in others if needed) -->
+    <header id="main-header" class="flex items-center justify-between p-6 z-50 sticky top-0 bg-primary/80 backdrop-blur-md">
+        <a href="#/" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <i data-lucide="tree-palm" class="w-6 h-6 text-main"></i>
+            <div class="flex items-center gap-2">
+                <span class="text-xl font-bold text-main">Palm-Ware</span>
+                <span id="header-plus-badge" class="hidden px-1.5 py-0.5 bg-main text-[10px] font-black text-primary rounded uppercase tracking-tighter">Plus</span>
+            </div>
+        </a>
+
+        <div class="flex items-center gap-2">
+            <a href="#/about" class="p-2 rounded-md hover:bg-accent transition-colors text-secondary hover:text-main" title="About">
+                <i data-lucide="info" class="w-6 h-6"></i>
+            </a>
+            <a href="#/settings" class="p-2 rounded-md hover:bg-accent transition-colors text-secondary hover:text-main" title="Settings">
+                <i data-lucide="settings" class="w-6 h-6"></i>
+            </a>
+        </div>
+    </header>
+
+    <!-- Views Container -->
+    <div id="views">
+        
+        <!-- Home View -->
+        <section id="view-home" class="view active p-8">
+            <div class="max-w-4xl mx-auto w-full py-12 flex flex-col items-center justify-center">
+                <div class="text-center mb-12 flex flex-col items-center">
+                    <div class="bg-accent/50 p-5 rounded-3xl mb-6 border border-accent shadow-xl">
+                        <i data-lucide="tree-palm" class="w-20 h-20 text-main"></i>
+                    </div>
+                    <h1 class="text-6xl font-bold tracking-tight mb-4 text-main">Palm-Ware</h1>
+                    <p class="text-xl text-secondary max-w-2xl mx-auto leading-relaxed">
+                        Your post-work entertainment hub. <span class="text-main font-semibold">Palm-Ware</span> gives you 
+                        curated links and games to seamlessly play and browse social media when you're done with work.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-12">
+                    <div class="bg-secondary border border-accent p-6 rounded-2xl flex flex-col items-center text-center">
+                        <div class="bg-accent/50 p-3 rounded-xl mb-4"><i data-lucide="gamepad-2" class="w-6 h-6 text-main"></i></div>
+                        <h3 class="text-lg font-semibold text-main mb-2">Curated Games</h3>
+                        <p class="text-sm text-secondary">A handpicked selection of the best web games to play instantly.</p>
+                    </div>
+                    <div class="bg-secondary border border-accent p-6 rounded-2xl flex flex-col items-center text-center">
+                        <div class="bg-accent/50 p-3 rounded-xl mb-4"><i data-lucide="link" class="w-6 h-6 text-main"></i></div>
+                        <h3 class="text-lg font-semibold text-main mb-2">Quick Links</h3>
+                        <p class="text-sm text-secondary">Direct shortcuts to unblocked sites.</p>
+                    </div>
+                    <div class="bg-secondary border border-accent p-6 rounded-2xl flex flex-col items-center text-center">
+                        <div class="bg-accent/50 p-3 rounded-xl mb-4"><i data-lucide="zap" class="w-6 h-6 text-main"></i></div>
+                        <h3 class="text-lg font-semibold text-main mb-2">Instant Access</h3>
+                        <p class="text-sm text-secondary">No downloads or installations required. Just click and play right in your browser.</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center gap-4">
+                    <a href="#/games" class="flex items-center gap-3 px-8 py-4 bg-main hover:opacity-90 text-primary rounded-xl font-semibold transition-all hover:scale-105 active:scale-95 shadow-lg">
+                        <i data-lucide="gamepad-2" class="w-5 h-5"></i>
+                        <span>Play Games</span>
+                    </a>
+                    <a href="#/unblockers" class="flex items-center gap-3 px-8 py-4 bg-secondary hover:bg-accent border border-accent rounded-xl text-main font-semibold transition-all hover:scale-105 active:scale-95">
+                        <i data-lucide="link" class="w-5 h-5"></i>
+                        <span>Open Unblockers</span>
+                    </a>
+                    <a href="#/browser" class="flex items-center gap-3 px-8 py-4 bg-accent hover:bg-zinc-700 border border-accent rounded-xl text-main font-semibold transition-all hover:scale-105 active:scale-95 shadow-lg">
+                        <i data-lucide="globe" class="w-5 h-5"></i>
+                        <span>Open Browser</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- About View -->
+        <section id="view-about" class="view p-8">
+            <div class="max-w-4xl mx-auto w-full flex flex-col gap-12 py-8">
+                <section class="text-center space-y-6">
+                    <div class="flex flex-col items-center">
+                        <div class="bg-accent/50 p-5 rounded-3xl mb-6 border border-accent shadow-xl">
+                            <i data-lucide="tree-palm" class="w-16 h-16 text-main"></i>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex flex-col items-center gap-2">
+                            <h1 class="text-4xl font-bold text-main tracking-tight">About Palm-Ware</h1>
+                            <div class="flex items-center gap-2">
+                                <span class="px-3 py-1 bg-accent text-secondary text-xs font-bold rounded-full border border-accent uppercase tracking-widest">Version 2.1</span>
+                                <button id="patch-notes-btn-about" class="px-2 py-1 bg-accent hover:opacity-80 text-secondary hover:text-main text-xs font-bold rounded-full border border-accent transition-all cursor-pointer flex items-center justify-center" title="View Patch Notes">
+                                    <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-lg text-secondary max-w-2xl mx-auto leading-relaxed">
+                            Palm-Ware is a next-generation unblocked games platform designed for speed, 
+                            simplicity, and a premium gaming experience. We believe everyone should have 
+                            access to high-quality entertainment without unnecessary restrictions.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <a href="https://discord.gg/pt6kbu2CEg" target="_blank" class="flex items-center justify-between p-6 bg-secondary border border-accent rounded-xl hover:opacity-80 transition-all group">
+                        <div class="flex items-center gap-4">
+                            <div class="p-3 bg-indigo-500/10 rounded-lg text-indigo-400 group-hover:scale-110 transition-transform"><i data-lucide="message-square" class="w-6 h-6"></i></div>
+                            <div><h3 class="font-semibold text-main">Join our Discord</h3><p class="text-sm text-secondary">Connect with the community</p></div>
+                        </div>
+                    </a>
+                    <button onclick="window.open('https://docs.google.com/forms/d/e/1FAIpQLSfaIBUkG6D9hNS6cmWNy5WdKoL8_yAC4l0iiQ-0MNS_L5yEQg/viewform?usp=publish-editor', '_blank')" class="flex items-center justify-between p-6 bg-secondary border border-accent rounded-xl hover:opacity-80 transition-all group text-left">
+                        <div class="flex items-center gap-4">
+                            <div class="p-3 bg-red-500/10 rounded-lg text-red-400 group-hover:scale-110 transition-transform"><i data-lucide="alert-circle" class="w-6 h-6"></i></div>
+                            <div><h3 class="font-semibold text-main">Report a Problem</h3><p class="text-sm text-secondary">Help us improve Palm-Ware</p></div>
+                        </div>
+                    </button>
+                </section>
+
+                <section class="relative h-80 overflow-hidden bg-secondary border border-accent rounded-xl p-8 flex flex-col items-center">
+                    <div class="w-full relative">
+                        <div class="credits-roll flex flex-col items-center gap-8">
+                            <div class="flex flex-col items-center gap-4 mb-4">
+                                <i data-lucide="tree-palm" class="w-10 h-10 text-secondary"></i>
+                                <div class="text-secondary uppercase tracking-[0.3em] text-xs font-black">The Palmware Team</div>
+                            </div>
+                            <div id="credits-list" class="flex flex-col items-center gap-8">
+                                <!-- Credits injected here -->
+                            </div>
+                            <div class="h-20"></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </section>
+
+        <!-- Settings View -->
+        <section id="view-settings" class="view p-8">
+            <div class="max-w-4xl mx-auto w-full">
+                <div class="mb-10">
+                    <h1 class="text-4xl font-bold text-main mb-3">Settings</h1>
+                    <p class="text-secondary">Customize your Palm-Ware experience.</p>
+                </div>
+
+                <!-- Settings Tabs -->
+                <div class="flex items-center gap-2 mb-8 p-1 bg-secondary border border-accent rounded-xl overflow-x-auto no-scrollbar">
+                    <button class="settings-tab active flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap" data-tab="general">
+                        <i data-lucide="settings-2" class="w-4 h-4"></i>
+                        <span>General</span>
+                    </button>
+                    <button class="settings-tab flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium text-secondary hover:text-main transition-all whitespace-nowrap" data-tab="customization">
+                        <i data-lucide="palette" class="w-4 h-4"></i>
+                        <span>Customization</span>
+                    </button>
+                    <button class="settings-tab flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium text-secondary hover:text-main transition-all whitespace-nowrap" data-tab="account">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                        <span>Account</span>
+                    </button>
+                    <button id="admin-tab-btn" class="settings-tab hidden flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium text-secondary hover:text-main transition-all whitespace-nowrap" data-tab="admin">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i>
+                        <span>Admin</span>
+                    </button>
+                </div>
+
+                <div id="settings-content" class="space-y-6 pb-24">
+                    <!-- General Tab -->
+                    <div id="tab-general" class="settings-section space-y-6">
+                        <!-- Game Source Setting -->
+                        <div class="bg-secondary border border-accent rounded-xl p-6">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="p-2 bg-accent rounded-lg text-secondary">
+                                    <i data-lucide="server" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-main">Game Source</h3>
+                                    <p class="text-sm text-secondary">Choose the hosting provider for games. Switch if one is blocked.</p>
+                                </div>
+                            </div>
+                            <select id="game-source-select" class="w-full bg-primary border border-accent rounded-lg p-3 text-main focus:outline-none focus:border-main transition-colors">
+                                <option value="cloudflare">Cloudflare (Default)</option>
+                                <option value="githack">GitHack</option>
+                            </select>
+                        </div>
+
+                        <!-- Panic Key Setting -->
+                        <div class="bg-secondary border border-accent rounded-xl p-6">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="p-2 bg-accent rounded-lg text-secondary">
+                                    <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-main">Panic Key</h3>
+                                    <p class="text-sm text-secondary">Press this key to immediately redirect to a safe site.</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-secondary uppercase mb-2">Panic Key</label>
+                                    <input type="text" id="panic-key-input" placeholder="e.g. ` or Escape" class="w-full bg-primary border border-accent rounded-lg p-3 text-main focus:outline-none focus:border-main transition-colors">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-secondary uppercase mb-2">Panic URL</label>
+                                    <input type="text" id="panic-url-input" placeholder="https://google.com" class="w-full bg-primary border border-accent rounded-lg p-3 text-main focus:outline-none focus:border-main transition-colors">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cloak Setting -->
+                        <div class="bg-secondary border border-accent rounded-xl p-6">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="p-2 bg-accent rounded-lg text-secondary">
+                                    <i data-lucide="eye-off" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-main">Tab Cloak</h3>
+                                    <p class="text-sm text-secondary">Change the tab title and icon to hide your activity.</p>
+                                </div>
+                            </div>
+                            <select id="cloak-select" class="w-full bg-primary border border-accent rounded-lg p-3 text-main focus:outline-none focus:border-main transition-colors">
+                                <option value="none">None (Default)</option>
+                                <option value="google">Google</option>
+                                <option value="classroom">Google Classroom</option>
+                                <option value="drive">Google Drive</option>
+                                <option value="canvas">Canvas</option>
+                            </select>
+                        </div>
+
+                        <!-- Clear Data -->
+                        <div class="bg-secondary border border-accent rounded-xl p-6">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="p-2 bg-red-500/10 rounded-lg text-red-400">
+                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-main">Clear All Data</h3>
+                                    <p class="text-sm text-secondary">Reset all settings and clear your browser's storage for this site.</p>
+                                </div>
+                            </div>
+                            <button id="clear-data-btn" class="px-6 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-lg font-semibold transition-all active:scale-95">
+                                Clear Data
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Customization Tab -->
+                    <div id="tab-customization" class="settings-section hidden space-y-6">
+                        <!-- Theme Setting -->
+                        <div class="bg-secondary border border-accent rounded-xl p-6">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="p-2 bg-accent rounded-lg text-secondary">
+                                    <i data-lucide="palette" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-main">UI Theme</h3>
+                                    <p class="text-sm text-secondary">Select a theme to change the colors and background of the app.</p>
+                                </div>
+                            </div>
+                            <div id="themes-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                <!-- Themes injected here -->
+                            </div>
+                        </div>
+
+                        <!-- Custom Theme Setting (Plus Only) -->
+                        <div id="custom-theme-section" class="bg-secondary border border-accent rounded-xl p-6 relative overflow-hidden">
+                            <!-- Lock Overlay for non-plus -->
+                            <div id="custom-theme-lock" class="absolute inset-0 z-10 bg-secondary/80 backdrop-blur-[2px] flex flex-col items-center justify-center p-6 text-center">
+                                <div class="p-3 bg-accent rounded-full text-amber-400 mb-3">
+                                    <i data-lucide="crown" class="w-8 h-8"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-main mb-1">Plus Feature</h3>
+                                <p class="text-sm text-secondary max-w-[200px]">Palm-Ware Plus is required to use custom themes.</p>
+                            </div>
+
+                            <div class="flex items-center gap-4 mb-6">
+                                <div class="p-2 bg-accent rounded-lg text-secondary">
+                                    <i data-lucide="paintbrush" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-main">Custom Theme</h3>
+                                    <p class="text-sm text-secondary">Design your own color palette.</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-secondary uppercase tracking-wider mb-2">Primary Background</label>
+                                        <div class="flex items-center gap-3">
+                                            <input type="color" id="custom-primary-bg" class="w-10 h-10 rounded cursor-pointer bg-transparent border-none">
+                                            <span id="custom-primary-bg-hex" class="text-sm font-mono text-secondary">#121212</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-secondary uppercase tracking-wider mb-2">Secondary Background</label>
+                                        <div class="flex items-center gap-3">
+                                            <input type="color" id="custom-secondary-bg" class="w-10 h-10 rounded cursor-pointer bg-transparent border-none">
+                                            <span id="custom-secondary-bg-hex" class="text-sm font-mono text-secondary">#1e1e1e</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-secondary uppercase tracking-wider mb-2">Accent Background</label>
+                                        <div class="flex items-center gap-3">
+                                            <input type="color" id="custom-accent-bg" class="w-10 h-10 rounded cursor-pointer bg-transparent border-none">
+                                            <span id="custom-accent-bg-hex" class="text-sm font-mono text-secondary">#27272a</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-secondary uppercase tracking-wider mb-2">Main Text</label>
+                                        <div class="flex items-center gap-3">
+                                            <input type="color" id="custom-text-main" class="w-10 h-10 rounded cursor-pointer bg-transparent border-none">
+                                            <span id="custom-text-main-hex" class="text-sm font-mono text-secondary">#f4f4f5</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-secondary uppercase tracking-wider mb-2">Secondary Text</label>
+                                        <div class="flex items-center gap-3">
+                                            <input type="color" id="custom-text-secondary" class="w-10 h-10 rounded cursor-pointer bg-transparent border-none">
+                                            <span id="custom-text-secondary-hex" class="text-sm font-mono text-secondary">#a1a1aa</span>
+                                        </div>
+                                    </div>
+                                    <div class="pt-2">
+                                        <button id="apply-custom-theme-btn" class="w-full px-4 py-2 bg-main text-primary rounded-lg font-bold hover:opacity-90 transition-all active:scale-95">
+                                            Apply Custom Theme
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Background Setting -->
+                        <div class="bg-secondary border border-accent rounded-xl p-6">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="p-2 bg-accent rounded-lg text-secondary">
+                                    <i data-lucide="image" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-main">Custom Background</h3>
+                                    <p class="text-sm text-secondary">Upload a custom image for your background.</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row items-center gap-4">
+                                <label class="flex-1 w-full">
+                                    <input type="file" id="bg-upload-input" accept="image/*" class="hidden">
+                                    <div class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-accent hover:opacity-80 text-main rounded-lg font-semibold cursor-pointer transition-all border border-accent">
+                                        <i data-lucide="upload" class="w-4 h-4"></i>
+                                        <span>Upload Image</span>
+                                    </div>
+                                </label>
+                                <button id="reset-bg-btn" class="w-full sm:w-auto px-6 py-3 bg-accent/50 hover:bg-accent text-secondary border border-accent rounded-lg font-semibold transition-all active:scale-95">
+                                    Reset
+                                </button>
+                            </div>
+                            <p id="bg-status" class="text-xs text-secondary mt-3 italic">No custom background set.</p>
+                        </div>
+                    </div>
+
+                    <!-- Account Tab -->
+                    <div id="tab-account" class="settings-section hidden space-y-6">
+                        <!-- Palm-Ware Plus Setting -->
+                        <div class="bg-secondary border border-accent rounded-xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="p-2 bg-accent rounded-lg">
+                                        <i data-lucide="crown" class="w-5 h-5 text-amber-400"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-main">Palm-Ware Plus</h3>
+                                        <p class="text-sm text-secondary">Activate premium features with a license key.</p>
+                                    </div>
+                                </div>
+                                <div id="plus-status-badge" class="px-3 py-1 bg-accent rounded-full text-xs font-bold text-secondary uppercase tracking-wider">
+                                    Inactive
+                                </div>
+                            </div>
+                            
+                            <div id="plus-login-container" class="space-y-4">
+                                <button id="google-login-btn" class="w-full flex items-center justify-center gap-3 px-6 py-3 bg-white text-black rounded-lg font-semibold hover:bg-zinc-200 transition-all active:scale-95">
+                                    <img src="https://www.google.com/favicon.ico" class="w-4 h-4" alt="Google">
+                                    <span>Login with Google</span>
+                                </button>
+                            </div>
+
+                            <div id="plus-activation-container" class="hidden space-y-4">
+                                <div class="flex items-center gap-3 p-3 bg-primary rounded-lg border border-accent">
+                                    <img id="user-avatar" src="" class="w-8 h-8 rounded-full border border-accent" alt="Avatar">
+                                    <div class="flex-1 min-w-0">
+                                        <p id="user-name" class="text-sm font-bold text-main truncate">User Name</p>
+                                        <p id="user-email" class="text-xs text-secondary truncate">user@email.com</p>
+                                    </div>
+                                    <button id="logout-btn" class="p-2 text-secondary hover:text-red-400 transition-colors">
+                                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+
+                                <div id="activation-form" class="space-y-3">
+                                    <label class="block text-xs font-bold text-secondary uppercase">Activation Key</label>
+                                    <div class="flex gap-2">
+                                        <input type="text" id="activation-key-input" placeholder="XXXX-XXXX-XXXX" class="flex-1 bg-primary border border-accent rounded-lg p-3 text-main focus:outline-none focus:border-main transition-colors uppercase">
+                                        <button id="activate-plus-btn" class="px-6 py-3 bg-main text-primary rounded-lg font-bold hover:opacity-90 transition-all active:scale-95 disabled:opacity-50">
+                                            Activate
+                                        </button>
+                                    </div>
+                                    <p id="activation-status" class="text-xs italic text-secondary"></p>
+                                </div>
+
+                                <div id="plus-active-msg" class="hidden p-4 bg-accent border border-accent rounded-lg text-main text-sm font-medium">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                        <span>Palm-Ware Plus is Active!</span>
+                                    </div>
+                                    <p class="text-xs opacity-80">Thank you for supporting Palm-Ware. Enjoy your premium features.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Admin Tab -->
+                    <div id="tab-admin" class="settings-section hidden space-y-6">
+                        <div id="admin-panel" class="bg-secondary border border-accent rounded-xl p-6">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="p-2 bg-accent rounded-lg text-main">
+                                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-main">Admin Panel</h3>
+                                    <p class="text-sm text-secondary">Manage activation keys and user status.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-6">
+                                <div class="space-y-4">
+                                    <button id="generate-key-btn" class="w-full px-6 py-3 bg-main text-primary rounded-lg font-bold hover:opacity-90 transition-all active:scale-95">
+                                        Generate New Plus Key
+                                    </button>
+                                    <div id="generated-key-display" class="hidden p-3 bg-primary border border-accent rounded-lg text-center font-mono text-sm text-main select-all">
+                                        <!-- Key here -->
+                                    </div>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <h4 class="text-xs font-bold text-secondary uppercase tracking-wider">Active Keys</h4>
+                                        <span id="keys-count" class="text-[10px] bg-accent px-2 py-0.5 rounded text-secondary">0</span>
+                                    </div>
+                                    <div id="keys-list" class="space-y-2 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
+                                        <!-- Keys will be rendered here -->
+                                        <div class="text-center py-4 text-secondary text-xs italic">Loading keys...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Unblockers View -->
+        <section id="view-unblockers" class="view p-8">
+            <div class="max-w-6xl mx-auto w-full">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h1 class="text-3xl font-bold text-main mb-2">Unblockers</h1>
+                        <p class="text-secondary">Access your favorite web unblockers.</p>
+                    </div>
+                </div>
+                <div id="unblockers-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 pb-20">
+                    <!-- Unblockers injected here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Links View -->
+        <section id="view-links" class="view p-8">
+            <div class="max-w-4xl mx-auto w-full">
+                <div class="flex items-center gap-4 mb-8">
+                    <a href="#/unblockers" class="p-2 rounded-lg bg-accent/50 hover:bg-accent text-secondary hover:text-main transition-colors">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </a>
+                    <div>
+                        <h1 id="unblocker-title" class="text-3xl font-bold text-main">Unblocker Links</h1>
+                        <p id="unblocker-desc" class="text-secondary">Select a link to open the unblocker.</p>
+                    </div>
+                </div>
+
+                <div id="links-container" class="flex flex-col gap-4">
+                    <!-- Links injected here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Games View -->
+        <section id="view-games" class="view p-8">
+            <div class="max-w-6xl mx-auto w-full">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h1 class="text-3xl font-bold text-main mb-2">Games</h1>
+                        <p class="text-secondary">Handpicked games for your entertainment.</p>
+                    </div>
+                    <div class="relative w-72">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-secondary"></i>
+                        <input type="text" id="game-search" placeholder="Search games..." class="w-full bg-secondary border border-accent rounded-lg py-2 pl-10 pr-4 text-main placeholder-secondary focus:outline-none focus:border-main transition-colors">
+                    </div>
+                </div>
+                <div id="games-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- No Games Available Card (Initial State) -->
+                    <div class="col-span-full flex flex-col items-center justify-center py-20 text-center bg-secondary border border-accent border-dashed rounded-xl">
+                        <div class="p-4 bg-accent/50 rounded-full mb-4">
+                            <i data-lucide="gamepad-2" class="w-8 h-8 text-secondary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-main mb-2">No Games Available</h3>
+                        <p class="text-secondary max-w-xs">More games are being added to the library. Please check back later.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Play View -->
+        <section id="view-play" class="view p-4 sm:p-8 h-screen overflow-hidden">
+            <div class="flex items-center justify-between mb-6 bg-secondary/50 p-4 rounded-xl border border-accent backdrop-blur-sm">
+                <div class="flex items-center gap-4">
+                    <a href="#/games" class="p-2 rounded-lg bg-accent/50 hover:bg-accent text-secondary hover:text-main transition-all active:scale-95">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </a>
+                    <div class="h-6 w-px bg-accent"></div>
+                    <h2 id="player-title" class="text-lg font-bold text-main tracking-tight">Game Title</h2>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <button id="reload-game-btn" title="Reload Game" class="p-2.5 rounded-lg bg-accent/50 hover:bg-accent text-secondary hover:text-main transition-all active:scale-95">
+                        <i data-lucide="rotate-cw" class="w-5 h-5"></i>
+                    </button>
+                    <button id="toggle-fullscreen-btn" title="Fullscreen" class="p-2.5 rounded-lg bg-accent/50 hover:bg-accent text-secondary hover:text-main transition-all active:scale-95">
+                        <i data-lucide="maximize" id="fullscreen-icon" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="player-wrapper" class="flex-1 flex items-center justify-center transition-all duration-500 ease-in-out">
+                <div id="player-container" class="w-full h-[85vh] bg-black rounded-2xl overflow-hidden relative border border-accent shadow-2xl shadow-black/50 group">
+                    <!-- Loading State -->
+                    <div id="game-loader" class="absolute inset-0 z-10 bg-primary flex flex-col items-center justify-center transition-opacity duration-500">
+                        <div class="relative w-16 h-16">
+                            <div class="absolute inset-0 border-4 border-accent rounded-full"></div>
+                            <div class="absolute inset-0 border-4 border-main rounded-full border-t-transparent animate-spin"></div>
+                        </div>
+                        <p class="mt-4 text-secondary font-medium animate-pulse">Loading Game...</p>
+                    </div>
+                    
+                    <iframe id="game-iframe" src="" class="w-full h-full border-none opacity-0 transition-opacity duration-700" allowfullscreen></iframe>
+                </div>
+            </div>
+        </section>
+
+        <!-- Browser View -->
+        <section id="view-browser" class="view h-screen w-screen overflow-hidden relative bg-black">
+            <div class="absolute top-4 left-4 z-50">
+                <a href="#/" class="flex items-center gap-2 px-4 py-2 bg-black/50 hover:bg-black backdrop-blur-md border border-accent text-main rounded-lg transition-all active:scale-95 shadow-xl group">
+                    <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
+                    <span class="text-sm font-bold">Back to Home</span>
+                </a>
+            </div>
+            <iframe id="browser-iframe" src="" class="w-full h-full border-none" allowfullscreen></iframe>
+        </section>
+
+    </div>
+
+    <!-- Patch Notes Modal -->
+    <div id="patch-notes-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden">
+        <div class="bg-secondary border border-accent w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+            <div class="p-6 border-b border-accent flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-accent rounded-lg text-main">
+                        <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-main">Patch Notes</h2>
+                </div>
+                <button id="close-patch-notes" class="p-2 hover:bg-accent rounded-lg text-secondary hover:text-main transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6 max-h-[60vh] overflow-y-auto space-y-6">
+                <div>
+                    <h3 class="text-xs font-black text-secondary uppercase tracking-widest mb-3">Version 2.1</h3>
+                    <ul class="space-y-3">
+                        <li class="flex gap-3 text-sm text-secondary">
+                            <span class="text-secondary mt-1">•</span>
+                            <span>Added <b>srtaco_01</b> to the development team as a Backend Developer.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="p-4 bg-primary/50 border-t border-accent text-center">
+                <p class="text-[10px] text-secondary font-bold uppercase tracking-tighter">Thanks for using Palm-Ware!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div id="custom-modal" class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden">
+        <div class="bg-secondary border border-accent w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="p-6 text-center">
+                <div id="modal-icon-container" class="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-4 text-main">
+                    <i id="modal-icon" data-lucide="alert-circle" class="w-6 h-6"></i>
+                </div>
+                <h2 id="modal-title" class="text-xl font-bold text-main mb-2">Confirm Action</h2>
+                <p id="modal-message" class="text-secondary text-sm mb-6">Are you sure you want to proceed?</p>
+                <div class="flex gap-3">
+                    <button id="modal-cancel-btn" class="flex-1 px-4 py-2.5 bg-accent hover:bg-accent/80 text-secondary rounded-lg font-bold transition-all active:scale-95">Cancel</button>
+                    <button id="modal-confirm-btn" class="flex-1 px-4 py-2.5 bg-main text-primary rounded-lg font-bold transition-all active:scale-95">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data and Scripts -->
+    <script type="module">
+        let auth, db, googleProvider, signInWithPopup, onAuthStateChanged, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, query, where, getDocs, onSnapshot, Timestamp, handleFirestoreError, OperationType;
+        
+        try {
+            const fb = await import('./firebase.ts');
+            auth = fb.auth;
+            db = fb.db;
+            googleProvider = fb.googleProvider;
+            signInWithPopup = fb.signInWithPopup;
+            onAuthStateChanged = fb.onAuthStateChanged;
+            doc = fb.doc;
+            getDoc = fb.getDoc;
+            setDoc = fb.setDoc;
+            updateDoc = fb.updateDoc;
+            deleteDoc = fb.deleteDoc;
+            collection = fb.collection;
+            query = fb.query;
+            where = fb.where;
+            getDocs = fb.getDocs;
+            onSnapshot = fb.onSnapshot;
+            Timestamp = fb.Timestamp;
+            handleFirestoreError = fb.handleFirestoreError;
+            OperationType = fb.OperationType;
+        } catch (e) {
+            console.warn("Firebase failed to load (likely running locally via file://). Auth features disabled.");
+        }
+
+        // --- SHARED DATA ---
+        window.NO_IMAGE_URL = 'https://placehold.co/150x150/1e1e1e/52525b?text=No+Image';
+
+        window.handleImageError = function(img) {
+            if (img.src !== window.NO_IMAGE_URL) {
+                img.src = window.NO_IMAGE_URL;
+            }
+        }
+
+        const DEFAULT_SETTINGS = {
+            cloak: 'none',
+            panicKey: '`',
+            panicUrl: 'https://google.com',
+            background: null,
+            gameSource: 'cloudflare',
+            theme: 'dark',
+            customColors: null
+        };
+
+        const THEMES = {
+            dark: {
+                name: 'Dark (Default)',
+                primary: '#121212',
+                secondary: '#1e1e1e',
+                accent: '#27272a',
+                text: '#f4f4f5',
+                textSecondary: '#a1a1aa',
+                background: null
+            },
+            light: {
+                name: 'Light',
+                primary: '#ffffff',
+                secondary: '#f4f4f5',
+                accent: '#e4e4e7',
+                text: '#18181b',
+                textSecondary: '#52525b',
+                background: null
+            },
+            ocean: {
+                name: 'Ocean',
+                primary: '#0f172a',
+                secondary: '#1e293b',
+                accent: '#334155',
+                text: '#f8fafc',
+                textSecondary: '#94a3b8',
+                background: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=1920'
+            },
+            femboy: {
+                name: 'Femboy',
+                primary: '#fce7f3',
+                secondary: '#fdf2f8',
+                accent: '#fbcfe8',
+                text: '#4a044e',
+                textSecondary: '#701a75',
+                overlay: 'rgba(255, 255, 255, 0.4)',
+                background: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=1920'
+            },
+            minecraft: {
+                name: 'Minecraft',
+                primary: '#3d2b1f',
+                secondary: '#4a3728',
+                accent: '#5d8233',
+                text: '#f0f0f0',
+                textSecondary: '#a0a0a0',
+                overlay: 'rgba(0, 0, 0, 0.6)',
+                background: 'https://i.ibb.co/zWRpd72r/wallpaper-minecraft-pc-bundle-1920x1080.png'
+            }
+        };
+
+        const CLOAK_DATA = {
+            none: { title: 'Palm-Ware', icon: 'favicon.ico' },
+            google: { title: 'Google', icon: 'https://www.google.com/favicon.ico' },
+            classroom: { title: 'Classes', icon: 'https://ssl.gstatic.com/classroom/favicon.png' },
+            drive: { title: 'My Drive - Google Drive', icon: 'https://ssl.gstatic.com/docs/doclist/images/drive_2022q3_32dp.png' },
+            canvas: { title: 'Dashboard', icon: 'https://canvas.instructure.com/favicon.ico' }
+        };
+
+        // --- FIREBASE LOGIC ---
+        let currentUser = null;
+        let userData = null;
+        let keysUnsubscribe = null;
+
+        async function fetchUserData(user) {
+            try {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists()) {
+                    userData = userDoc.data();
+                } else {
+                    // Create initial user profile
+                    userData = {
+                        uid: user.uid,
+                        isPlus: false,
+                        email: user.email,
+                        createdAt: Timestamp.now()
+                    };
+                    await setDoc(doc(db, 'users', user.uid), userData);
+                }
+                updatePlusUI();
+            } catch (error) {
+                handleFirestoreError(error, OperationType.GET, `users/${user.uid}`);
+            }
+        }
+
+        function setupKeysListener() {
+            if (keysUnsubscribe) keysUnsubscribe();
+            
+            const keysRef = collection(db, 'activationKeys');
+            const q = query(keysRef);
+            
+            keysUnsubscribe = onSnapshot(q, (snapshot) => {
+                const keysList = document.getElementById('keys-list');
+                const keysCount = document.getElementById('keys-count');
+                if (!keysList || !keysCount) return;
+
+                keysList.innerHTML = '';
+                
+                const keys = [];
+                snapshot.forEach(doc => keys.push(doc.data()));
+                
+                // Sort by date created (newest first)
+                keys.sort((a, b) => {
+                    const timeA = a.createdAt?.toMillis() || 0;
+                    const timeB = b.createdAt?.toMillis() || 0;
+                    return timeB - timeA;
+                });
+                
+                keysCount.innerText = keys.length;
+
+                if (keys.length === 0) {
+                    keysList.innerHTML = '<div class="text-center py-4 text-secondary text-xs italic">No keys found.</div>';
+                    return;
+                }
+
+                keys.forEach(keyData => {
+                    const keyEl = document.createElement('div');
+                    keyEl.className = 'flex items-center justify-between p-3 bg-primary border border-accent rounded-lg group hover:border-main/30 transition-colors';
+                    keyEl.innerHTML = `
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2">
+                                <span class="font-mono text-xs text-main truncate">${keyData.key}</span>
+                                ${keyData.used ? 
+                                    '<span class="text-[10px] px-1.5 py-0.5 bg-red-500/10 text-red-400 rounded">Used</span>' : 
+                                    '<span class="text-[10px] px-1.5 py-0.5 bg-green-500/10 text-green-400 rounded">Available</span>'
+                                }
+                            </div>
+                            ${keyData.usedBy ? `<p class="text-[10px] text-secondary truncate mt-0.5">By: ${keyData.usedBy}</p>` : ''}
+                        </div>
+                        <button class="delete-key-btn p-1.5 text-secondary hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all" data-key="${keyData.key}">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    `;
+                    keysList.appendChild(keyEl);
+                });
+
+                // Re-initialize icons
+                if (window.lucide) window.lucide.createIcons();
+
+                // Add delete listeners
+                document.querySelectorAll('.delete-key-btn').forEach(btn => {
+                    btn.onclick = async (e) => {
+                        const key = e.currentTarget.getAttribute('data-key');
+                        if (await showConfirm('Delete Key', `Are you sure you want to delete key: ${key}?`)) {
+                            try {
+                                await deleteDoc(doc(db, 'activationKeys', key));
+                            } catch (error) {
+                                console.error('Failed to delete key:', error);
+                                await showAlert('Error', 'Failed to delete key.');
+                            }
+                        }
+                    };
+                });
+            }, (error) => {
+                handleFirestoreError(error, OperationType.LIST, 'activationKeys');
+            });
+        }
+
+        function updatePlusUI() {
+            const loginContainer = document.getElementById('plus-login-container');
+            const activationContainer = document.getElementById('plus-activation-container');
+            const statusBadge = document.getElementById('plus-status-badge');
+            const headerBadge = document.getElementById('header-plus-badge');
+            const activationForm = document.getElementById('activation-form');
+            const plusMsg = document.getElementById('plus-active-msg');
+            const adminPanel = document.getElementById('admin-panel');
+
+            if (currentUser) {
+                loginContainer.classList.add('hidden');
+                activationContainer.classList.remove('hidden');
+                document.getElementById('user-avatar').src = currentUser.photoURL || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
+                document.getElementById('user-name').innerText = currentUser.displayName || 'User';
+                document.getElementById('user-email').innerText = currentUser.email;
+
+                // Show Admin Panel if user is the owner
+                if (currentUser.email === 'brynleyportillo1@gmail.com') {
+                    document.getElementById('admin-tab-btn').classList.remove('hidden');
+                    setupKeysListener();
+                } else {
+                    document.getElementById('admin-tab-btn').classList.add('hidden');
+                    if (keysUnsubscribe) {
+                        keysUnsubscribe();
+                        keysUnsubscribe = null;
+                    }
+                }
+
+                if (userData && userData.isPlus) {
+                    statusBadge.innerText = 'Active';
+                    statusBadge.classList.remove('bg-accent', 'text-secondary');
+                    statusBadge.classList.add('bg-main/20', 'text-main');
+                    headerBadge.classList.remove('hidden');
+                    activationForm.classList.add('hidden');
+                    plusMsg.classList.remove('hidden');
+                    document.getElementById('custom-theme-lock').classList.add('hidden');
+                } else {
+                    statusBadge.innerText = 'Inactive';
+                    statusBadge.classList.add('bg-accent', 'text-secondary');
+                    statusBadge.classList.remove('bg-main/20', 'text-main');
+                    headerBadge.classList.add('hidden');
+                    activationForm.classList.remove('hidden');
+                    plusMsg.classList.add('hidden');
+                    document.getElementById('custom-theme-lock').classList.remove('hidden');
+                }
+            } else {
+                loginContainer.classList.remove('hidden');
+                activationContainer.classList.add('hidden');
+                document.getElementById('admin-tab-btn').classList.add('hidden');
+                if (keysUnsubscribe) {
+                    keysUnsubscribe();
+                    keysUnsubscribe = null;
+                }
+                statusBadge.innerText = 'Inactive';
+                statusBadge.classList.add('bg-accent', 'text-secondary');
+                statusBadge.classList.remove('bg-main/20', 'text-main');
+                headerBadge.classList.add('hidden');
+                document.getElementById('custom-theme-lock').classList.remove('hidden');
+            }
+            renderThemes();
+        }
+
+        if (onAuthStateChanged) {
+            onAuthStateChanged(auth, (user) => {
+                currentUser = user;
+                if (user) {
+                    fetchUserData(user);
+                } else {
+                    userData = null;
+                    updatePlusUI();
+                }
+            });
+        } else {
+            updatePlusUI();
+        }
+
+        document.getElementById('google-login-btn').addEventListener('click', async () => {
+            if (!signInWithPopup) {
+                showAlert('Offline Mode', 'Login is not available when running locally.');
+                return;
+            }
+            try {
+                await signInWithPopup(auth, googleProvider);
+            } catch (error) {
+                console.error('Login failed:', error);
+            }
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            if (!auth) return;
+            try {
+                await auth.signOut();
+            } catch (error) {
+                console.error('Logout failed:', error);
+            }
+        });
+
+        // --- SETTINGS TABS ---
+        document.querySelectorAll('.settings-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetTab = tab.getAttribute('data-tab');
+                
+                // Update buttons
+                document.querySelectorAll('.settings-tab').forEach(t => {
+                    t.classList.remove('active', 'bg-accent', 'text-main');
+                    t.classList.add('text-secondary');
+                });
+                tab.classList.add('active', 'bg-accent', 'text-main');
+                tab.classList.remove('text-secondary');
+
+                // Update content
+                document.querySelectorAll('.settings-section').forEach(section => {
+                    section.classList.add('hidden');
+                });
+                document.getElementById(`tab-${targetTab}`).classList.remove('hidden');
+
+                if (targetTab === 'customization') {
+                    updateCustomThemeUI();
+                }
+            });
+        });
+
+        // Initialize first tab
+        const firstTab = document.querySelector('.settings-tab[data-tab="general"]');
+        if (firstTab) {
+            firstTab.classList.add('bg-accent', 'text-main');
+            firstTab.classList.remove('text-secondary');
+        }
+
+        document.getElementById('generate-key-btn').addEventListener('click', async () => {
+            const display = document.getElementById('generated-key-display');
+            const btn = document.getElementById('generate-key-btn');
+            
+            btn.disabled = true;
+            btn.innerText = 'Generating...';
+
+            try {
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                const segment = () => Array.from({length: 4}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+                const key = `PALM-PLUS-${segment()}-${segment()}`;
+
+                await setDoc(doc(db, 'activationKeys', key), {
+                    key: key,
+                    used: false,
+                    createdAt: Timestamp.now()
+                });
+
+                display.innerText = key;
+                display.classList.remove('hidden');
+                btn.innerText = 'Generate Another Key';
+            } catch (error) {
+                console.error('Failed to generate key:', error);
+                await showAlert('Error', 'Failed to generate key. Check console for details.');
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        document.getElementById('activate-plus-btn').addEventListener('click', async () => {
+            const keyInput = document.getElementById('activation-key-input');
+            const statusMsg = document.getElementById('activation-status');
+            const key = keyInput.value.trim().toUpperCase();
+            const btn = document.getElementById('activate-plus-btn');
+
+            if (!key) return;
+
+            statusMsg.innerText = 'Verifying key...';
+            statusMsg.classList.remove('text-red-400');
+            btn.disabled = true;
+
+            try {
+                const keyDoc = await getDoc(doc(db, 'activationKeys', key));
+                
+                if (!keyDoc.exists()) {
+                    throw new Error('Invalid activation key.');
+                }
+
+                const keyData = keyDoc.data();
+                if (keyData.used) {
+                    throw new Error('This key has already been used.');
+                }
+
+                // 1. Mark key as used
+                await updateDoc(doc(db, 'activationKeys', key), {
+                    used: true,
+                    usedBy: currentUser.uid
+                });
+
+                // 2. Update user profile
+                await updateDoc(doc(db, 'users', currentUser.uid), {
+                    isPlus: true,
+                    activationKey: key,
+                    activatedAt: Timestamp.now()
+                });
+
+                // 3. Refresh local data
+                await fetchUserData(currentUser);
+                statusMsg.innerText = 'Palm-Ware Plus activated successfully!';
+                statusMsg.classList.add('text-emerald-400');
+                keyInput.value = '';
+
+            } catch (error) {
+                statusMsg.innerText = error.message;
+                statusMsg.classList.add('text-red-400');
+                console.error('Activation error:', error);
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        // --- GAMES DATA ---
+        const GAMES = [
+            {
+                id: 'drivemad',
+                title: 'Drive Mad',
+                category: 'Arcade',
+                image: 'https://placehold.co/600x400/1e1e1e/52525b?text=Drive+Mad',
+                sources: {
+                    githack: 'https://rawcdn.githack.com/Atelloblue/Palm-Ware-Assets/refs/heads/main/games/drivemad.html',
+                    cloudflare: 'https://palm-ware-assets.brynleyportillo0.workers.dev/games/drivemad'
+                }
+            },
+            {
+                id: 'basketballfrvr',
+                title: 'Basketball FRVR',
+                category: 'Sports',
+                image: 'https://placehold.co/600x400/1e1e1e/52525b?text=Basketball+FRVR',
+                sources: {
+                    githack: 'https://rawcdn.githack.com/Atelloblue/Palm-Ware-Assets/refs/heads/main/games/basketballfrvr.html',
+                    cloudflare: 'https://palm-ware-assets.brynleyportillo0.workers.dev/games/basketballfrvr'
+                }
+            },
+            {
+                id: 'crossyroad',
+                title: 'Crossy Road',
+                category: 'Arcade',
+                image: 'https://placehold.co/600x400/1e1e1e/52525b?text=Crossy+Road',
+                sources: {
+                    githack: 'https://rawcdn.githack.com/Atelloblue/Palm-Ware-Assets/refs/heads/main/games/crossyroad.html',
+                    cloudflare: 'https://palm-ware-assets.brynleyportillo0.workers.dev/games/crossyroad'
+                }
+            },
+            {
+                id: '1v1lol',
+                title: '1v1.lol',
+                category: 'Action',
+                image: 'https://placehold.co/600x400/1e1e1e/52525b?text=1v1.lol',
+                sources: {
+                    githack: 'https://rawcdn.githack.com/Atelloblue/Palm-Ware-Assets/refs/heads/main/games/1v1lol.html',
+                    cloudflare: 'https://palm-ware-assets.brynleyportillo0.workers.dev/games/1v1lol'
+                }
+            },
+            {
+                id: 'pianotiles3',
+                title: 'Piano Tiles 3',
+                category: 'Music',
+                image: 'https://placehold.co/600x400/1e1e1e/52525b?text=Piano+Tiles+3',
+                sources: {
+                    githack: 'https://rawcdn.githack.com/Atelloblue/Palm-Ware-Assets/refs/heads/main/games/pianotiles3.html',
+                    cloudflare: 'https://palm-ware-assets.brynleyportillo0.workers.dev/games/pianotiles3'
+                }
+            },
+            {
+                id: 'geometrydash',
+                title: 'Geometry Dash',
+                category: 'Arcade',
+                image: 'https://placehold.co/600x400/1e1e1e/52525b?text=Geometry+Dash',
+                sources: {
+                    githack: 'https://rawcdn.githack.com/Atelloblue/Palm-Ware-Assets/refs/heads/main/games/geometrydash.html',
+                    cloudflare: 'https://palm-ware-assets.brynleyportillo0.workers.dev/games/geometrydash'
+                }
+            }
+        ];
+
+        const UNBLOCKERS = [
+            { 
+                id: 'rosin', 
+                title: 'Rosin', 
+                category: 'Unblocker', 
+                icon: 'assets/rosin.webp',
+                verified: true,
+                links: [
+                    { title: 'Rosin Link 1', url: 'https://weup.casadotricolor.com.br/' },
+                    { title: 'Rosin Link 2', url: 'https://brosarookie.biocellerity.com/' },
+                    { title: 'Rosin Link 3', url: 'https://alltalkgetyouhurt.nanobit.org/' }
+                ]
+            },
+            { 
+                id: 'demon', 
+                title: 'Demon', 
+                category: 'Unblocker', 
+                icon: window.NO_IMAGE_URL,
+                links: []
+            },
+            { 
+                id: 'waves', 
+                title: 'Waves!', 
+                category: 'Unblocker', 
+                icon: 'assets/waves.webp',
+                links: []
+            },
+            { 
+                id: 'shadow', 
+                title: 'Shadow', 
+                category: 'Unblocker', 
+                icon: window.NO_IMAGE_URL,
+                links: [
+                    { title: 'Shadow Link 1', url: 'https://signals.b-cdn.net/' },
+                    { title: 'Shadow Link 2', url: 'https://biologia.b-cdn.net/' },
+                    { title: 'Shadow Link 3', url: 'https://sciency.b-cdn.net/' }
+                ]
+            },
+            { 
+                id: 'fern', 
+                title: 'Fern', 
+                category: 'Unblocker', 
+                icon: window.NO_IMAGE_URL,
+                links: [
+                    { title: 'Fern Link 1', url: 'https://d1w7oj52hl4x53.cloudfront.net/' },
+                    { title: 'Fern Link 2', url: 'https://storage.googleapis.com/fernisbest/index.html' },
+                    { title: 'Fern Link 3', url: 'https://storage.googleapis.com/canvas-lms/index.html' },
+                    { title: 'Fern Link 4', url: 'https://s3.amazonaws.com/fernlinks/index.html' }
+                ]
+            },
+            { 
+                id: 'others', 
+                title: 'Others', 
+                category: 'Unblocker', 
+                icon: window.NO_IMAGE_URL,
+                links: [
+                    { title: 'VCSA YT', url: 'https://vcsa-yt.keybusinessconnection.com/' }
+                ]
+            }
+        ];
+
+        const CREDITS = [
+            { name: 'nahim2936', role: 'Founder' },
+            { name: 'itzsebasfam', role: 'Co-owner' },
+            { name: 'attelloblue', role: 'Frontend Developer' },
+            { name: 'arongood3d', role: 'Backend Developer' },
+            { name: 'srtaco_01', role: 'Backend Developer' },
+            { name: 'curlyheadmicheal', role: 'Moderator' },
+            { name: 'thegodkat', role: 'Helper' }
+        ];
+
+        // --- SETTINGS LOGIC ---
+        function getSettings() {
+            const saved = localStorage.getItem('palmware_settings');
+            return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS;
+        }
+
+        function saveSettings(settings) {
+            localStorage.setItem('palmware_settings', JSON.stringify(settings));
+            applySettings();
+        }
+
+        function applySettings() {
+            const settings = getSettings();
+            
+            // Apply Theme
+            let theme;
+            if (settings.theme === 'custom' && settings.customColors) {
+                theme = {
+                    name: 'Custom',
+                    ...settings.customColors,
+                    overlay: 'rgba(0,0,0,0.5)',
+                    background: null
+                };
+            } else {
+                theme = THEMES[settings.theme] || THEMES.dark;
+            }
+            
+            document.documentElement.style.setProperty('--primary-bg', theme.primary);
+            document.documentElement.style.setProperty('--secondary-bg', theme.secondary);
+            document.documentElement.style.setProperty('--accent-bg', theme.accent);
+            document.documentElement.style.setProperty('--text-main', theme.text);
+            document.documentElement.style.setProperty('--text-secondary', theme.textSecondary);
+
+            // Apply Cloak
+            const cloak = CLOAK_DATA[settings.cloak] || CLOAK_DATA.none;
+            document.title = cloak.title;
+            
+            let link = document.querySelector("link[rel~='icon']");
+            if (!link) {
+                link = document.createElement('link');
+                link.rel = 'icon';
+                document.getElementsByTagName('head')[0].appendChild(link);
+            }
+            link.href = cloak.icon;
+
+            // Apply Background
+            const finalBg = settings.background || theme.background;
+            if (finalBg) {
+                const overlay = theme.overlay || 'rgba(0,0,0,0.5)';
+                document.body.style.backgroundImage = `linear-gradient(${overlay}, ${overlay}), url(${finalBg})`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundAttachment = 'fixed';
+                document.body.style.backgroundRepeat = 'no-repeat';
+            } else {
+                document.body.style.backgroundImage = 'none';
+            }
+        }
+
+        // Panic Key Listener
+        window.addEventListener('keydown', (e) => {
+            const settings = getSettings();
+            if (e.key === settings.panicKey) {
+                window.location.href = settings.panicUrl;
+            }
+        });
+
+        // Run on load
+        applySettings();
+
+        // --- ROUTER LOGIC ---
+        const views = {
+            'home': document.getElementById('view-home'),
+            'about': document.getElementById('view-about'),
+            'settings': document.getElementById('view-settings'),
+            'unblockers': document.getElementById('view-unblockers'),
+            'links': document.getElementById('view-links'),
+            'games': document.getElementById('view-games'),
+            'play': document.getElementById('view-play'),
+            'browser': document.getElementById('view-browser')
+        };
+
+        const header = document.getElementById('main-header');
+
+        function navigate() {
+            const hash = window.location.hash || '#/';
+            const parts = hash.split('/');
+            const route = parts[1] || '';
+            const param = parts[2] || '';
+
+            // Hide all views
+            Object.values(views).forEach(v => v.classList.remove('active'));
+            header.style.display = 'flex'; // Show header by default
+
+            if (route === '' || route === 'home') {
+                views.home.classList.add('active');
+            } else if (route === 'about') {
+                views.about.classList.add('active');
+                renderCredits();
+            } else if (route === 'settings') {
+                views.settings.classList.add('active');
+                loadSettings();
+            } else if (route === 'unblockers') {
+                views.unblockers.classList.add('active');
+                renderUnblockers();
+            } else if (route === 'unblocker') {
+                views.links.classList.add('active');
+                renderLinks(param);
+            } else if (route === 'games') {
+                views.games.classList.add('active');
+                renderGames();
+            } else if (route === 'play') {
+                views.play.classList.add('active');
+                header.style.display = 'none'; // Hide header in play view for full screen feel
+                renderPlay(param);
+            } else if (route === 'browser') {
+                views.browser.classList.add('active');
+                header.style.display = 'none';
+                renderBrowser();
+            } else {
+                views.home.classList.add('active');
+            }
+
+            lucide.createIcons();
+            window.scrollTo(0, 0);
+        }
+
+        window.addEventListener('hashchange', navigate);
+        window.addEventListener('load', navigate);
+
+        // --- VIEW RENDERING LOGIC ---
+
+        function renderCredits() {
+            const list = document.getElementById('credits-list');
+            list.innerHTML = CREDITS.map(c => `
+                <div class="text-center">
+                    <div class="text-xl font-bold text-main">${c.name}</div>
+                    <div class="text-sm text-zinc-500 font-medium">${c.role}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderUnblockers() {
+            const grid = document.getElementById('unblockers-grid');
+            
+            grid.innerHTML = UNBLOCKERS.map(p => `
+                <a href="#/unblocker/${p.id}" class="group relative bg-secondary border border-accent rounded-lg p-6 flex flex-col items-center justify-center hover:border-zinc-600 transition-colors cursor-pointer">
+                    <div class="w-16 h-16 mb-4 rounded-xl bg-primary p-3 flex items-center justify-center overflow-hidden">
+                        <img src="${p.icon}" alt="${p.title}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity rounded-lg" referrerPolicy="no-referrer" onerror="handleImageError(this)">
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <h3 class="text-sm font-semibold text-main">${p.title}</h3>
+                        ${p.verified ? `<i data-lucide="badge-check" class="w-4 h-4 text-blue-400 fill-blue-400/10"></i>` : ''}
+                    </div>
+                    <span class="text-xs text-zinc-500 mt-1">${p.category}</span>
+                    <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-500"></i>
+                    </div>
+                </a>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        async function checkStatus(url, elementId) {
+            const statusEl = document.getElementById(elementId);
+            if (!statusEl) return;
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                
+                await fetch(url, { mode: 'no-cors', signal: controller.signal });
+                clearTimeout(timeoutId);
+                
+                statusEl.innerHTML = `
+                    <span class="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Status: Unblocked
+                    </span>
+                `;
+            } catch (error) {
+                statusEl.innerHTML = `
+                    <span class="flex items-center gap-2 text-rose-400 text-xs font-bold uppercase tracking-wider">
+                        <span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span>
+                        Status: Blocked
+                    </span>
+                `;
+            }
+        }
+
+        function renderLinks(unblockerId) {
+            const unblocker = UNBLOCKERS.find(u => u.id === unblockerId);
+
+            if (!unblocker) {
+                window.location.hash = '#/unblockers';
+                return;
+            }
+
+            const titleContainer = document.getElementById('unblocker-title');
+            titleContainer.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span>${unblocker.title}</span>
+                    ${unblocker.verified ? `<i data-lucide="badge-check" class="w-6 h-6 text-blue-400 fill-blue-400/10"></i>` : ''}
+                </div>
+            `;
+            document.getElementById('unblocker-desc').innerText = `Available links for ${unblocker.title}`;
+
+            const container = document.getElementById('links-container');
+            
+            if (unblocker.links.length === 0) {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-20 text-center bg-secondary border border-accent border-dashed rounded-xl">
+                        <div class="p-4 bg-accent/50 rounded-full mb-4">
+                            <i data-lucide="link-2-off" class="w-8 h-8 text-secondary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-main mb-2">No Links Available</h3>
+                        <p class="text-secondary max-w-xs">There are currently no links available for ${unblocker.title}. Please check back later.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = unblocker.links.map((link, index) => `
+                <a href="${link.url}" target="_blank" class="group flex items-center justify-between p-6 bg-secondary border border-accent rounded-xl hover:opacity-80 transition-all hover:translate-x-1">
+                    <div class="flex items-center gap-4 min-w-0">
+                        <div class="p-3 bg-accent rounded-lg text-secondary group-hover:text-main transition-colors flex-shrink-0">
+                            <i data-lucide="link" class="w-6 h-6"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h3 class="font-bold text-main truncate">${link.title}</h3>
+                            <p class="text-sm text-secondary truncate max-w-[150px] sm:max-w-md">${link.url}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-6 flex-shrink-0">
+                        <div id="status-${index}" class="hidden md:block">
+                            <span class="flex items-center gap-2 text-secondary text-xs font-bold uppercase tracking-wider">
+                                <span class="w-2 h-2 rounded-full bg-zinc-600 animate-pulse"></span>
+                                Checking...
+                            </span>
+                        </div>
+                        <div class="p-2 rounded-lg bg-accent/50 text-secondary group-hover:text-main transition-colors">
+                            <i data-lucide="external-link" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                </a>
+            `).join('');
+            
+            lucide.createIcons();
+
+            // Run status checks in background
+            unblocker.links.forEach((link, index) => {
+                checkStatus(link.url, `status-${index}`);
+            });
+        }
+
+        function renderGames() {
+            const grid = document.getElementById('games-grid');
+            const settings = getSettings();
+            const query = document.getElementById('game-search').value.toLowerCase();
+            const allGames = [...GAMES].filter(g => g.id !== 'browser' && g.title.toLowerCase().includes(query));
+            
+            if (allGames.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full flex flex-col items-center justify-center py-20 text-center bg-secondary border border-accent border-dashed rounded-xl">
+                        <div class="p-4 bg-accent/50 rounded-full mb-4">
+                            <i data-lucide="gamepad-2" class="w-8 h-8 text-secondary"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-main mb-2">No Games Available</h3>
+                        <p class="text-secondary max-w-xs">More games are being added to the library. Please check back later.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            const gamesHtml = allGames.map(game => `
+                <a href="#/play/${game.id}" class="group relative bg-secondary border border-accent rounded-xl overflow-hidden hover:opacity-80 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]">
+                    <div class="aspect-video overflow-hidden bg-primary">
+                        <img src="${game.image || window.NO_IMAGE_URL}" alt="${game.title}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" referrerPolicy="no-referrer" onerror="handleImageError(this)">
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-1">
+                            <h3 class="font-bold text-main">${game.title}</h3>
+                            <span class="text-xs font-medium px-2 py-1 bg-accent rounded text-secondary">${game.category}</span>
+                        </div>
+                    </div>
+                </a>
+            `).join('');
+
+            grid.innerHTML = gamesHtml;
+            lucide.createIcons();
+        }
+
+        function renderPlay(gameId) {
+            const settings = getSettings();
+            const allGames = [...GAMES];
+            const game = allGames.find(g => g.id === gameId);
+            const iframe = document.getElementById('game-iframe');
+            const loader = document.getElementById('game-loader');
+            
+            if (game) {
+                document.getElementById('player-title').innerText = game.title;
+                
+                let src = game.src; // For custom games
+                if (game.sources) {
+                    src = game.sources[settings.gameSource] || game.sources.githack || Object.values(game.sources)[0];
+                }
+
+                if (iframe.src !== src) {
+                    // Show loader
+                    loader.style.opacity = '1';
+                    loader.style.pointerEvents = 'auto';
+                    iframe.classList.remove('opacity-100');
+                    iframe.classList.add('opacity-0');
+                    
+                    iframe.src = src;
+                    
+                    iframe.onload = () => {
+                        loader.style.opacity = '0';
+                        loader.style.pointerEvents = 'none';
+                        iframe.classList.remove('opacity-0');
+                        iframe.classList.add('opacity-100');
+                    };
+                } else {
+                    // Already loaded, just ensure visible
+                    loader.style.opacity = '0';
+                    loader.style.pointerEvents = 'none';
+                    iframe.classList.remove('opacity-0');
+                    iframe.classList.add('opacity-100');
+                }
+            } else {
+                window.location.hash = '#/games';
+            }
+        }
+
+        function renderBrowser() {
+            const iframe = document.getElementById('browser-iframe');
+            const url = 'https://v3ontop.b-cdn.net/';
+            if (iframe.src !== url) {
+                iframe.src = url;
+            }
+        }
+
+        // --- SETTINGS LOGIC ---
+
+        function loadSettings() {
+            const settings = getSettings();
+            document.getElementById('cloak-select').value = settings.cloak;
+            document.getElementById('game-source-select').value = settings.gameSource || 'cloudflare';
+            document.getElementById('panic-key-input').value = settings.panicKey;
+            document.getElementById('panic-url-input').value = settings.panicUrl;
+            document.getElementById('bg-status').innerText = settings.background ? 'Custom background applied.' : 'No custom background set.';
+            renderThemes();
+        }
+
+        function renderThemes() {
+            const grid = document.getElementById('themes-grid');
+            const settings = getSettings();
+            
+            let themesHtml = Object.entries(THEMES).map(([id, theme]) => `
+                <button onclick="setTheme('${id}')" 
+                    aria-label="Select ${theme.name} theme"
+                    class="group relative flex flex-col items-center p-3 rounded-xl border-2 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-400 ${settings.theme === id ? 'border-main bg-accent' : 'border-accent hover:border-zinc-500 bg-secondary'}">
+                    <div class="w-full aspect-video rounded-lg mb-2 overflow-hidden border border-accent flex">
+                        <div class="w-1/3 h-full" style="background-color: ${theme.primary}"></div>
+                        <div class="w-1/3 h-full" style="background-color: ${theme.secondary}"></div>
+                        <div class="w-1/3 h-full" style="background-color: ${theme.accent}"></div>
+                    </div>
+                    <span class="text-xs font-bold text-main">${theme.name}</span>
+                    ${settings.theme === id ? '<div class="absolute top-2 right-2 bg-main text-primary rounded-full p-0.5 shadow-lg"><i data-lucide="check" class="w-3 h-3"></i></div>' : ''}
+                </button>
+            `).join('');
+
+            if (userData && userData.isPlus) {
+                const isCustom = settings.theme === 'custom';
+                const customColors = settings.customColors || {
+                    primary: '#121212',
+                    secondary: '#1e1e1e',
+                    accent: '#27272a',
+                    text: '#f4f4f5',
+                    textSecondary: '#a1a1aa'
+                };
+                themesHtml += `
+                    <button onclick="setTheme('custom')" 
+                        aria-label="Select Custom theme"
+                        class="group relative flex flex-col items-center p-3 rounded-xl border-2 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-400 ${isCustom ? 'border-main bg-accent' : 'border-accent hover:border-zinc-500 bg-secondary'}">
+                        <div class="w-full aspect-video rounded-lg mb-2 overflow-hidden border border-accent flex">
+                            <div class="w-1/3 h-full" style="background-color: ${customColors.primary}"></div>
+                            <div class="w-1/3 h-full" style="background-color: ${customColors.secondary}"></div>
+                            <div class="w-1/3 h-full" style="background-color: ${customColors.accent}"></div>
+                        </div>
+                        <span class="text-xs font-bold text-main">Custom</span>
+                        ${isCustom ? '<div class="absolute top-2 right-2 bg-main text-primary rounded-full p-0.5 shadow-lg"><i data-lucide="check" class="w-3 h-3"></i></div>' : ''}
+                    </button>
+                `;
+            }
+
+            grid.innerHTML = themesHtml;
+            lucide.createIcons();
+        }
+
+        window.setTheme = function(themeId) {
+            const settings = getSettings();
+            settings.theme = themeId;
+            saveSettings(settings);
+            renderThemes();
+        };
+
+        document.getElementById('cloak-select').addEventListener('change', (e) => {
+            const settings = getSettings();
+            settings.cloak = e.target.value;
+            saveSettings(settings);
+        });
+
+        document.getElementById('game-source-select').addEventListener('change', (e) => {
+            const settings = getSettings();
+            settings.gameSource = e.target.value;
+            saveSettings(settings);
+        });
+
+        document.getElementById('panic-key-input').addEventListener('input', (e) => {
+            const settings = getSettings();
+            settings.panicKey = e.target.value;
+            saveSettings(settings);
+        });
+
+        document.getElementById('panic-url-input').addEventListener('input', (e) => {
+            const settings = getSettings();
+            settings.panicUrl = e.target.value;
+            saveSettings(settings);
+        });
+
+        document.getElementById('bg-upload-input').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 2 * 1024 * 1024) { // 2MB limit for localStorage
+                    await showAlert('File Too Large', 'Image is too large! Please choose an image under 2MB.');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const settings = getSettings();
+                    settings.background = event.target.result;
+                    saveSettings(settings);
+                    document.getElementById('bg-status').innerText = 'Custom background applied.';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('reset-bg-btn').addEventListener('click', () => {
+            const settings = getSettings();
+            settings.background = null;
+            saveSettings(settings);
+            document.getElementById('bg-status').innerText = 'No custom background set.';
+        });
+
+        document.getElementById('clear-data-btn').addEventListener('click', async () => {
+            if (await showConfirm('Clear All Data', 'Are you sure you want to clear all data? This will reset your settings.')) {
+                localStorage.removeItem('palmware_settings');
+                window.location.reload();
+            }
+        });
+
+        document.getElementById('toggle-fullscreen-btn').addEventListener('click', () => {
+            const container = document.getElementById('player-container');
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => console.error(err));
+            } else {
+                document.exitFullscreen();
+            }
+        });
+
+        document.getElementById('reload-game-btn').addEventListener('click', () => {
+            const iframe = document.getElementById('game-iframe');
+            const loader = document.getElementById('game-loader');
+            const currentSrc = iframe.src;
+            
+            loader.style.opacity = '1';
+            loader.style.pointerEvents = 'auto';
+            iframe.classList.remove('opacity-100');
+            iframe.classList.add('opacity-0');
+            
+            iframe.src = '';
+            setTimeout(() => {
+                iframe.src = currentSrc;
+            }, 100);
+        });
+
+        document.getElementById('game-search').addEventListener('input', renderGames);
+
+        // Custom Theme Logic
+        const customColorInputs = {
+            primary: document.getElementById('custom-primary-bg'),
+            secondary: document.getElementById('custom-secondary-bg'),
+            accent: document.getElementById('custom-accent-bg'),
+            text: document.getElementById('custom-text-main'),
+            textSecondary: document.getElementById('custom-text-secondary')
+        };
+
+        const customColorHexes = {
+            primary: document.getElementById('custom-primary-bg-hex'),
+            secondary: document.getElementById('custom-secondary-bg-hex'),
+            accent: document.getElementById('custom-accent-bg-hex'),
+            text: document.getElementById('custom-text-main-hex'),
+            textSecondary: document.getElementById('custom-text-secondary-hex')
+        };
+
+        function updateCustomThemeUI() {
+            const settings = getSettings();
+            const colors = settings.customColors || {
+                primary: '#121212',
+                secondary: '#1e1e1e',
+                accent: '#27272a',
+                text: '#f4f4f5',
+                textSecondary: '#a1a1aa'
+            };
+
+            Object.keys(customColorInputs).forEach(key => {
+                customColorInputs[key].value = colors[key];
+                customColorHexes[key].innerText = colors[key].toUpperCase();
+            });
+        }
+
+        // Attach event listeners once
+        Object.keys(customColorInputs).forEach(key => {
+            customColorInputs[key].addEventListener('input', (e) => {
+                customColorHexes[key].innerText = e.target.value.toUpperCase();
+            });
+        });
+
+        document.getElementById('apply-custom-theme-btn').addEventListener('click', () => {
+            const settings = getSettings();
+            settings.customColors = {
+                primary: customColorInputs.primary.value,
+                secondary: customColorInputs.secondary.value,
+                accent: customColorInputs.accent.value,
+                text: customColorInputs.text.value,
+                textSecondary: customColorInputs.textSecondary.value
+            };
+            settings.theme = 'custom';
+            saveSettings(settings);
+            renderThemes();
+        });
+
+        updateCustomThemeUI();
+
+        // Patch Notes Modal Logic
+        const patchNotesBtnAbout = document.getElementById('patch-notes-btn-about');
+        const patchNotesModal = document.getElementById('patch-notes-modal');
+        const closePatchNotes = document.getElementById('close-patch-notes');
+
+        // Custom Modal Logic
+        const customModal = document.getElementById('custom-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+        const modalIcon = document.getElementById('modal-icon');
+
+        function showModal({ title, message, confirmText = 'Confirm', cancelText = 'Cancel', icon = 'alert-circle', showCancel = true }) {
+            return new Promise((resolve) => {
+                modalTitle.innerText = title;
+                modalMessage.innerText = message;
+                modalConfirmBtn.innerText = confirmText;
+                modalCancelBtn.innerText = cancelText;
+                modalCancelBtn.classList.toggle('hidden', !showCancel);
+                modalIcon.setAttribute('data-lucide', icon);
+                if (window.lucide) window.lucide.createIcons();
+                
+                customModal.classList.remove('hidden');
+
+                const handleConfirm = () => {
+                    cleanup();
+                    resolve(true);
+                };
+
+                const handleCancel = () => {
+                    cleanup();
+                    resolve(false);
+                };
+
+                const cleanup = () => {
+                    customModal.classList.add('hidden');
+                    modalConfirmBtn.removeEventListener('click', handleConfirm);
+                    modalCancelBtn.removeEventListener('click', handleCancel);
+                };
+
+                modalConfirmBtn.addEventListener('click', handleConfirm, { once: true });
+                modalCancelBtn.addEventListener('click', handleCancel, { once: true });
+            });
+        }
+
+        async function showAlert(title, message) {
+            await showModal({ title, message, confirmText: 'OK', showCancel: false, icon: 'info' });
+        }
+
+        async function showConfirm(title, message) {
+            return await showModal({ title, message, confirmText: 'Confirm', cancelText: 'Cancel', icon: 'help-circle' });
+        }
+
+        if (patchNotesBtnAbout) {
+            patchNotesBtnAbout.addEventListener('click', () => {
+                patchNotesModal.classList.remove('hidden');
+            });
+        }
+
+        closePatchNotes.addEventListener('click', () => {
+            patchNotesModal.classList.add('hidden');
+        });
+
+        patchNotesModal.addEventListener('click', (e) => {
+            if (e.target === patchNotesModal) {
+                patchNotesModal.classList.add('hidden');
+            }
+        });
+;
+
+    </script>
+</body>
+</html>
