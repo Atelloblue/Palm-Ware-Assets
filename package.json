@@ -1,0 +1,21 @@
+{
+  "name": "palm-ware",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port=3000 --host=0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "firebase": "^12.11.0",
+    "tailwindcss": "^4.2.2",
+    "vite": "^6.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^10.2.0"
+  }
+}
