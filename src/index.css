@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --primary-bg: #121212;
+  --secondary-bg: #1e1e1e;
+  --accent-bg: #27272a;
+  --text-main: #f4f4f5;
+  --text-secondary: #a1a1aa;
+}
+
+body { 
+  font-family: var(--font-sans); 
+  background-color: var(--primary-bg); 
+  color: var(--text-main); 
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.bg-primary { background-color: var(--primary-bg); }
+.bg-secondary { background-color: var(--secondary-bg); }
+.bg-accent { background-color: var(--accent-bg); }
+.bg-main { background-color: var(--text-main); }
+.text-main { color: var(--text-main); }
+.text-secondary { color: var(--text-secondary); }
+.text-primary { color: var(--primary-bg); }
+.border-accent { border-color: var(--accent-bg); }
+.border-main { border-color: var(--text-main); }
+
+.selection-bg::selection { background-color: var(--accent-bg); }
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--primary-bg); }
+::-webkit-scrollbar-thumb { background: var(--accent-bg); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+
+@keyframes roll {
+  0% { transform: translateY(300px); }
+  100% { transform: translateY(-600px); }
+}
+.credits-roll {
+  animation: roll 20s linear infinite;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
