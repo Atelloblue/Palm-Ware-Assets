@@ -1,0 +1,126 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId} (UID from Firebase Auth)
+    // Fields:
+    //   - uid: string (required) - The user's unique ID.
+    //   - isPlus: bool (required) - Whether the user has Palm-Ware Plus.
+    //   - activatedAt: timestamp (optional) - When Plus was activated.
+    //   - activationKey: string (optional) - The key used for activation.
+    //
+    // Collection: activationKeys
+    // Document ID: {keyId} (The key itself)
+    // Fields:
+    //   - key: string (required) - The activation key string.
+    //   - used: bool (required) - Whether the key has been used.
+    //   - usedBy: string (optional) - The UID of the user who used it.
+    //   - createdAt: timestamp (required) - When the key was created.
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "notify.bluedhost@gmail.com" && request.auth.token.email_verified == true) ||
+          (request.auth.token.email == "brynleyportillo1@gmail.com" && request.auth.token.email_verified == true) ||
+          (request.auth.token.email == "crwnexecutor@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'isPlus']) &&
+             data.uid is string &&
+             data.isPlus is bool &&
+             (!('activatedAt' in data) || data.activatedAt is timestamp) &&
+             (!('activationKey' in data) || data.activationKey is string);
+    }
+
+    function isValidActivationKey(data) {
+      return data.keys().hasAll(['key', 'used', 'createdAt']) &&
+             data.key is string &&
+             data.used is bool &&
+             data.createdAt is timestamp &&
+             (!('usedBy' in data) || data.usedBy is string) &&
+             (!('createdByEmail' in data) || data.createdByEmail is string) &&
+             (!('usedByEmail' in data) || data.usedByEmail is string);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Users can create their own profile initially (without Plus)
+      allow create: if isOwner(userId) && isValidUser(request.resource.data) && 
+                      request.resource.data.isPlus == false;
+      
+      // Users can update their profile to activate Plus IF they have a valid key
+      // This is a bit tricky because we need to verify the key is marked as usedBy them.
+      allow update: if isOwner(userId) && isValidUser(request.resource.data) &&
+                      (
+                        // If not changing Plus status, just allow
+                        (request.resource.data.isPlus == resource.data.isPlus) ||
+                        // If activating Plus, verify the key
+                        (
+                          resource.data.isPlus == false && 
+                          request.resource.data.isPlus == true &&
+                          'activationKey' in request.resource.data &&
+                          get(/databases/$(database)/documents/activationKeys/$(request.resource.data.activationKey)).data.used == true &&
+                          get(/databases/$(database)/documents/activationKeys/$(request.resource.data.activationKey)).data.usedBy == request.auth.uid
+                        )
+                      ) || isAdmin();
+    }
+
+    match /activationKeys/{keyId} {
+      // Admins can do everything
+      allow read, write: if isAdmin();
+      
+      // Authenticated users can read keys to check status
+      allow read: if isAuthenticated();
+      
+      // Users can update a key to mark it as used by them
+      allow update: if isAuthenticated() && 
+                      resource.data.used == false &&
+                      request.resource.data.used == true &&
+                      request.resource.data.usedBy == request.auth.uid &&
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['used', 'usedBy', 'usedByEmail']);
+    }
+
+    match /managedUnblockers/{unblockerId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /managedLinks/{linkId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /premiumLinks/{linkId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Default deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

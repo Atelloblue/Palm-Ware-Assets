@@ -1,0 +1,38 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Stores user subscription status and metadata.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "isPlus": { "type": "boolean" },
+        "activatedAt": { "type": "string", "format": "date-time" },
+        "activationKey": { "type": "string" }
+      },
+      "required": ["uid", "isPlus"]
+    },
+    "ActivationKey": {
+      "title": "Activation Key",
+      "description": "A unique key used to activate Palm-Ware Plus.",
+      "type": "object",
+      "properties": {
+        "key": { "type": "string" },
+        "used": { "type": "boolean" },
+        "usedBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["key", "used"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile documents."
+    },
+    "/activationKeys/{keyId}": {
+      "schema": "ActivationKey",
+      "description": "Collection of unique activation keys."
+    }
+  }
+}
